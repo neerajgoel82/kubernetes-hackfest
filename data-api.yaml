@@ -1,9 +1,27 @@
+---
+# Source: data-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-api
+  labels:
+    name: data-api
+spec:
+  type: "LoadBalancer"
+  ports:
+  - name: http
+    port: 3009
+    targetPort: 3009
+  selector:
+    app: data-api
+---
+# Source: data-api/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{.Values.deploy.name}}"
+  name: "data-api"
 spec:
-  replicas: {{ default 1 .Values.deploy.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       app: data-api
@@ -13,16 +31,16 @@ spec:
         app: data-api
     spec:
       containers:
-        - image: "{{.Values.deploy.acrServer}}/hackfest/data-api:{{.Values.deploy.imageTag}}"
+        - image: "acrhackfestbrianredmond16005.azurecr.io/hackfest/data-api:1.0"
           imagePullPolicy: Always
           name: data-api
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "64Mi"
+              cpu: "100m"
             limits:
-              memory: "1024Mi"
-              cpu: "1000m"
+              memory: "128Mi"
+              cpu: "500m"
           env:
             - name: MONGODB_USER
               valueFrom:
@@ -40,6 +58,6 @@ spec:
                   name: cosmos-db-secret
                   key: appinsights                   
           ports:
-          - containerPort: {{.Values.deploy.containerPort}}
+          - containerPort: 3009
             protocol: TCP
       restartPolicy: Always
